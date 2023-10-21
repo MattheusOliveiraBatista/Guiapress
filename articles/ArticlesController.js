@@ -10,7 +10,7 @@ const cheerio = require('cheerio');
 router.get("/admin/articles", (req, res) =>{
     Article.findAll({
         //Join no sequelize
-        incluude: [{mode: Category}]
+        include: [{model: Category}]
     }).then(articles => {
         res.render("admin/articles/index", {articles:articles})
     })
@@ -22,6 +22,42 @@ router.get("/admin/articles/new", (req, res) => {
         res.render("admin/articles/new", {categories: categories});
     });
 });
+
+
+router.post("/articles/delete", (req,res) => {
+    var id = req.body.id;
+
+    if(id != undefined)
+    {
+        if(!isNaN(id))
+        {
+            Article.destroy
+            ({
+                where:
+                {
+                    id:id
+                }
+            }).then(() => {
+                res.redirect("/admin/articles");
+            });
+        } 
+        else{ //Senão for um número
+            res.redirect("/admin/articles");
+        }
+    }
+    else{ //Se for nulo
+        res.redirect("/admin/articles");
+    }
+});
+
+
+
+
+
+
+
+
+
 router.post("/articles/save" , (req, res) => {
     var title = req.body.title;
     
