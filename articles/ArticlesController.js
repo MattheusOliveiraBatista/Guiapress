@@ -8,7 +8,12 @@ const cheerio = require('cheerio');
 
 
 router.get("/admin/articles", (req, res) =>{
-    res.send("Rota de artigos");
+    Article.findAll({
+        //Join no sequelize
+        incluude: [{mode: Category}]
+    }).then(articles => {
+        res.render("admin/articles/index", {articles:articles})
+    })
 });
 
 
