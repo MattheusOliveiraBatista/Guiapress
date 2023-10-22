@@ -38,7 +38,13 @@ app.use("/", articlesController);
 app.use(express.static('public'));
 
 app.get("/", (req, res) => {
-    res.render("index")
+    Article
+        .findAll()
+        .then(articles =>{
+            res.render("index", {articles:articles})
+        });
+    
+    
 });
 
 app.listen(8080, () => {

@@ -51,13 +51,6 @@ router.post("/articles/delete", (req,res) => {
 });
 
 
-
-
-
-
-
-
-
 router.post("/articles/save" , (req, res) => {
     var title = req.body.title;
     
@@ -82,11 +75,26 @@ router.post("/articles/save" , (req, res) => {
         res.redirect("/admin/articles");
     });
 
+});
 
 
 
+router.get("/:slug", (req, res) => {
+    var slug = req.params.slug;
 
-
-
+    Article.findOne({
+        where:
+            {
+                slug: slug
+            }
+    }).then(article  => {
+        if(article != undefined){
+            res.render("article", {article:article});
+        }else{
+            res.redirect("/");
+        }
+    }).catch(error => {
+        res.redirect("/");
+    });
 });
 module.exports = router;
