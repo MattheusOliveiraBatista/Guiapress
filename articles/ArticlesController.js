@@ -50,6 +50,64 @@ router.post("/articles/delete", (req,res) => {
     }
 });
 
+router.get("/admin/articles/edit/:id", (req, res) => {
+    var id = req.params.id;
+    
+    console.log(id);
+
+    if(isNaN(id)) res.redirect("/admin/articles");
+
+    Article
+    .findByPk(id)
+    .then(article => 
+    {
+        if(article != undefined)
+        {
+            Category.findAll().then(categories => {
+                res.render("admin/articles/edit", {article: article, categories: categories});
+
+            })
+        }
+        else res.redirect("/");
+    }).catch(erro => {
+        res.redirect("/");           
+    });
+});
+
+router.post("/articles/update", (req,res) => {
+    var id = req.body.id;
+    var title = req.body.title;
+
+    // Extrai o texto dentro das tags <p>
+    var body = req.body.body;
+    var content = cheerio.load(body);
+    var bodyText = content('p').text(); 
+    // Extrai o texto dentro das tags <p>
+
+
+    var category = req.body.category;
+
+    Article.update({
+
+        title: title, 
+        body: bodyText,
+        categoryId: category,
+        slug: slugify(title)
+    }, 
+    {
+        where: 
+        {
+            id:id
+        }
+    }).then(() => {
+        res.redirect("/admin/articles");
+    }).catch(erro =>{
+        res.redirect("/");
+    });
+});
+
+
+
 
 router.post("/articles/save" , (req, res) => {
     var title = req.body.title;
@@ -62,9 +120,6 @@ router.post("/articles/save" , (req, res) => {
 
     var category = req.body.category;
 
-    console.log(title);
-    console.log(bodyText);
-    console.log(category);
 
     Article.create({
         title: title,
@@ -77,24 +132,47 @@ router.post("/articles/save" , (req, res) => {
 
 });
 
+router.get("/articles/page/:num", (req, res) => {
+    var page = req.params.num;
+    var offset = 0;
+
+    if(isNaN(page) || page == 1) {
+        offset = 0;
+    } else { 
+        offset = (parseInt(page) - 1) * 4;
+    }
+
+    Article
+        .findAndCountAll({
+            limit: 4,
+            offset: offset,
+            order: [
+                ['id', 'DESC']
+            ]
+        }).then(articles => {
+            var next;
 
 
-router.get("/:slug", (req, res) => {
-    var slug = req.params.slug;
-
-    Article.findOne({
-        where:
+            console.log(offset);
+            console.log(articles.count);
+            if(offset + 4 >= articles.count) 
             {
-                slug: slug
+                next = false;
+                console.log(offset);
+                console.log(articles.count);
+            } else {
+                next = true;
             }
-    }).then(article  => {
-        if(article != undefined){
-            res.render("article", {article:article});
-        }else{
-            res.redirect("/");
-        }
-    }).catch(error => {
-        res.redirect("/");
-    });
+            var result = {
+                page: parseInt(page),
+                next: next,
+                articles: articles
+            }
+
+            Category.findAll().then(categories => {
+                res.render("admin/articles/page", {result: result, categories: categories})
+            })
+        })
 });
+
 module.exports = router;

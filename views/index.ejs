@@ -11,10 +11,8 @@
             <p>Blog do curso de Node.js</p>
             <p class="btn btn-primary btn-lg" hr="#" role="button"> Leia mais</p>
         </div>
-
-
-
-        <% articles.forEach(article => { %>
+           
+            <% articles.forEach(article => { %>
             <div class="card">
                 <div class="card-header">
                     <h2> <%= article.title %></h2>
@@ -24,6 +22,12 @@
                 </div>
             </div> <br>     
         <% }) %>
+        <div class="row">
+            <div class="col col-12">
+                <a style="float: right;" href="/articles/page/2">Next >>></a>
+            </div>
+            <hr>
+        </div>
     </div>
 </body>
 
