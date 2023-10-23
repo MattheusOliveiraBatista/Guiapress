@@ -2,17 +2,27 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const connection = require("./database/database");
+const session = require("express-session");
 
-
-
+const usersController = require("./user/UsersController");
 const categoriesController = require("./categories/CategoriesController");
 const articlesController = require("./articles/ArticlesController");
 
 const Article = require("./articles/Article");
 const Category = require("./categories/Category");
+const User = require("./user/User");
 
 //View engine
 app.set('view engine', 'ejs');
+
+
+//Sessions
+app.use(session({
+    secret:"qualquercoisa", 
+    cookie: {
+        maxAge: 30000
+    }
+}))
 
 //Body parser
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -32,10 +42,18 @@ connection
 //Usando rotas de outro arquivo
 app.use("/", categoriesController);
 app.use("/", articlesController);
+app.use("/", usersController);
 
 
 //Static
 app.use(express.static('public'));
+
+
+app.get("/session", (req, res) => {})
+
+app.get("/leitura", (req, res) => {
+
+})
 
 app.get("/", (req, res) => {
     Article.findAll({
